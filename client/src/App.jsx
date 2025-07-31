@@ -1,11 +1,16 @@
-import React from "react";
-import Layout from "./components/Layout";
+import { useState } from "react";
+import { Container } from "@mui/material";
+import { Routes, Route } from "react-router-dom";
+import Header from "./components/Header";
 
+import "./App.css";
 function App() {
   return (
-    <Layout>
-      <h2>Welcome to Smart Study Scheduler</h2>
-    </Layout>
+    <>
+      <Container>
+        <Header />
+      </Container>
+    </>
   );
 }
 
