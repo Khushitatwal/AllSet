@@ -7,7 +7,7 @@ import {
   Modal,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import logo from "../assets/logo.png";
+import logo from "../assets/Logo.png";
 import AuthForm from "./AuthForm";
 import { useState, useEffect } from "react";
 
