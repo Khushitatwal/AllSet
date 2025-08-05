@@ -5,9 +5,10 @@ import {
   Box,
   Button,
   Modal,
+  Typography,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import logo from "../assets/logo.png";
+import logo from "../assets/Logo.png";
 import AuthForm from "./AuthForm";
 import { useState, useEffect } from "react";
 
@@ -23,6 +24,7 @@ function Header() {
   }, []);
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     console.log(localStorage.getItem);
     setUser(null);
   };
@@ -44,15 +46,24 @@ function Header() {
 
         <Box sx={{ flexGrow: 1 }} />
 
-        <Box>
+        <Box display={"flex"} alignItems="center" gap={2}>
           {!user ? (
             <Button variant="contained" color="primary" onClick={handleOpen}>
               Login / Signup
             </Button>
           ) : (
-            <Button variant="contained" color="primary" onClick={handleLogout}>
-              Logout
-            </Button>
+            <>
+              <Typography sx={{ fontFamily: "inherit" }}>
+                Welcome, {user.firstName} !
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            </>
           )}
         </Box>
       </Toolbar>
@@ -68,7 +79,7 @@ function Header() {
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
-            width: 400,
+            width: { xs: 200, sm: 400 },
           }}
         >
           <AuthForm

@@ -70,7 +70,7 @@ function AuthForm({ onClose, onLoggedin }) {
           });
           setTimeout(() => {
             onClose();
-          }, 3000);
+          }, 1000);
           onLoggedin(res.user);
         }
       } else {
