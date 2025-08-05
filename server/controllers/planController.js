@@ -1,4 +1,5 @@
 const StudyPlan = require("../models/StudyPlan");
+const Task = require("../models/Task");
 
 exports.createPlan = async (req, res) => {
   const { title, totalHours, deadline, minDailyHours } = req.body;
@@ -59,7 +60,7 @@ exports.deletePlan = async (req, res) => {
     if (!plan) {
       return res.status(404).json({ msg: "Plan not found or unauthorized" });
     }
-
+    await Task.deleteMany({ planId: plan._id });
     res.json({ msg: "Plan deleted" });
   } catch (err) {
     res.status(500).json({ msg: "Server error", error: err.message });
@@ -68,6 +69,11 @@ exports.deletePlan = async (req, res) => {
 
 exports.deleteAllPlans = async (req, res) => {
   try {
+    const userPlans = await StudyPlan.find({ userId: req.user.id });
+    const planIds = userPlans.map((plan) => plan._id);
+
+    await Task.deleteMany({ planId: { $in: planIds } });
+
     const result = await StudyPlan.deleteMany({ userId: req.user.id });
 
     res.json({
