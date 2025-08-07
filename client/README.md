@@ -1,12 +1,58 @@
-# React + Vite
+# 📚 Smart Study Scheduler
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An intelligent and visually appealing study scheduling web app designed to boost productivity and help users manage their study plans effectively. Prioritize tasks, generate optimized study schedules, and stay on track with reminders and reports!
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![Smart Study Scheduler Banner](https://imgur.com/your-placeholder-image.png) <!-- You can upload a screenshot and put the link here -->
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🎯 **AI-Based Schedule Generator** – Automatically schedules tasks based on priority, deadlines & available daily hours.
+- 🧠 **Smart Prioritization** – Uses user-defined priority and deadline to order tasks efficiently.
+- 📅 **Interactive Schedule View** – Clean UI to visualize daily workload.
+- 📬 **Email Reminders** – Get alerts for pending or upcoming tasks (with optional PDF schedule emails).
+- 🔄 **Auto-Rescheduling** – Recalculates schedule when time/days are updated.
+- 🧾 **Weekly Progress Reports** – Visual breakdown of completed tasks per plan.
+- 🔐 **Authentication** – Login/Register to save your personal study plans.
+
+---
+
+## 🖥️ Tech Stack
+
+- **Frontend:** React.js, Material UI
+- **Backend:** Node.js, Express.js, MongoDB
+- **Scheduler Logic:** Custom prioritization and scheduling algorithm
+- **Email:** Nodemailer + Ethereal/SMTP
+
+---
+
+## 📸 Screenshots
+
+| Login Page | Dashboard | Schedule Generator |
+|------------|-----------|--------------------|
+| ![Login](https://imgur.com/login-img.png) | ![Dashboard](https://imgur.com/dashboard-img.png) | ![Schedule](https://imgur.com/schedule-img.png) |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/Khushitatwal/allset.git
+
+# Navigate into frontend
+cd client
+
+# Install dependencies
+npm install
+
+# Run the app
+npm run dev
