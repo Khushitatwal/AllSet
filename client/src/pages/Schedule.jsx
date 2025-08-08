@@ -35,7 +35,7 @@ const Schedule = () => {
       for (let date in data) {
         data[date].forEach((task) => {
           calendarEvents.push({
-            title: `${task.title} (${task.estimatedTime}h)`,
+            title: `${task.title} (${task.hoursToStudyToday}h)`,
             date,
           });
         });
@@ -48,6 +48,7 @@ const Schedule = () => {
         severity: "success",
       });
     } catch (err) {
+      console.log(err);
       const errorMessage =
         err?.response?.data?.msg || "Failed to generate schedule.";
       setSnackbar({
