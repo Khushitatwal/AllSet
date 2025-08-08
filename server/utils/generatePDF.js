@@ -27,9 +27,9 @@ async function generateSchedulePDF(schedule) {
           .fontSize(12)
           .fillColor("black")
           .text(
-            `${idx + 1}. ${task.title} (Part: ${
-              task.scheduledPart
-            }, Estimated: ${task.estimatedTime} hr)`
+            `${idx + 1}. ${task.title} (  Study hours: ${
+              task.hoursToStudyToday
+            } hr)`
           );
       });
       doc.moveDown(0.5);

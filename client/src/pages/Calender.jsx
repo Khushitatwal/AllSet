@@ -1,8 +1,8 @@
-import React from "react";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import "@fullcalendar/common/main.css";
-import "@fullcalendar/daygrid/main.css";
+// import React from "react";
+// import FullCalendar from "@fullcalendar/react";
+// import dayGridPlugin from "@fullcalendar/daygrid";
+// import "@fullcalendar/common/main.css";
+// import "@fullcalendar/daygrid/main.css";
 
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
@@ -33,7 +33,7 @@ const Calender = ({ scheduleData }) => {
       tasks.forEach((task) => {
         const start = new Date(date);
         const end = new Date(date);
-        const duration = task.estimatedTime || 1;
+        const duration = task.hoursToStudyToday || 1;
 
         // Simulate time slots: 9 AM to X
         start.setHours(9);
@@ -66,26 +66,5 @@ const Calender = ({ scheduleData }) => {
     </Box>
   );
 };
-//({ scheduleData }) => {
-//   // Transform scheduleData into FullCalendar events
-//   const events = Object.entries(scheduleData || {}).flatMap(([date, tasks]) =>
-//     tasks.map((task) => ({
-//       title: `${task.title} (${task.estimatedTime}h)`,
-//       date: date,
-//     }))
-//   );
-
-//   return (
-//     <div style={{ padding: "1rem" }}>
-//       <h2 style={{ marginBottom: "1rem" }}>Task Calendar</h2>
-//       <FullCalendar
-//         plugins={[dayGridPlugin]}
-//         initialView="dayGridMonth"
-//         events={events}
-//         height="auto"
-//       />
-//     </div>
-//   );
-// };
 
 export default Calender;

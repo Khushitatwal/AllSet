@@ -58,7 +58,7 @@ exports.scheduleTasks = async (req, res) => {
     }).sort([
       ["priority", 1],
       ["deadline", 1],
-      ["estimatedTime", 1],
+      // ["estimatedTime", 1],
     ]);
 
     const today = new Date();
@@ -80,84 +80,95 @@ exports.scheduleTasks = async (req, res) => {
       const dateStr = dateKey.toISOString().split("T")[0];
       schedule[dateStr] = { hoursLeft: totalDailyHours, tasks: [] };
     }
+    async function schedulePlan(plan) {
+      const planTasks = tasks
+        .filter((t) => t.planId.toString() === plan._id.toString())
+        .map((t) => ({ ...t._doc, estimatedTime: t.estimatedTime })); // clone
 
-    //  Allocate each plan's minDailyHours first
-    for (let i = 1; i <= days; i++) {
-      const dateKey = new Date(today);
-      dateKey.setDate(today.getDate() + i);
-      const dateStr = dateKey.toISOString().split("T")[0];
+      let taskIndex = 0;
+      for (let day = 1; day <= days && taskIndex < planTasks.length; day++) {
+        const dateKey = new Date(today);
+        dateKey.setDate(today.getDate() + day);
+        const dateStr = dateKey.toISOString().split("T")[0];
+        let hoursLeftForPlan = Math.min(
+          plan.minDailyHours,
+          schedule[dateStr].hoursLeft
+        );
 
-      for (const plan of plans) {
-        const minHours = plan.minDailyHours;
-        let hoursLeft = minHours;
-        const dayHours = schedule[dateStr];
-
-        const planTasks = planTaskMap[plan._id] || [];
-
-        for (let t = 0; t < planTasks.length && hoursLeft > 0; t++) {
-          const task = planTasks[t];
-          if (new Date(task.deadline) < today || task._scheduled) continue;
-
+        while (hoursLeftForPlan > 0 && taskIndex < planTasks.length) {
+          const task = planTasks[taskIndex];
+          if (task.estimatedTime <= 0) {
+            taskIndex++;
+            continue;
+          }
           const hoursToSchedule = Math.min(
             task.estimatedTime,
-            hoursLeft,
-            dayHours.hoursLeft
+            hoursLeftForPlan
           );
-          if (hoursToSchedule > 0) {
-            dayHours.tasks.push({
-              ...task._doc,
-              scheduledPart: hoursToSchedule,
-            });
-            hoursLeft -= hoursToSchedule;
-            dayHours.hoursLeft -= hoursToSchedule;
-            task.estimatedTime -= hoursToSchedule;
+          schedule[dateStr].tasks.push({
+            ...task,
+            hoursToStudyToday: hoursToSchedule,
+          });
 
-            if (!task._scheduled) {
-              await Task.findByIdAndUpdate(task._id, {
-                scheduledDate: dateKey,
-              });
-              task._scheduled = true;
-            }
+          hoursLeftForPlan -= hoursToSchedule;
+          schedule[dateStr].hoursLeft -= hoursToSchedule;
+          task.estimatedTime -= hoursToSchedule;
 
-            if (task.estimatedTime <= 0) {
-              planTasks.splice(t, 1);
-              t--;
-            }
+          if (!task._scheduled) {
+            await Task.findByIdAndUpdate(task._id, { scheduledDate: dateKey });
+            task._scheduled = true;
+          }
+
+          if (task.estimatedTime <= 0) {
+            taskIndex++;
           }
         }
       }
     }
+    for (const plan of plans) {
+      await schedulePlan(plan);
+    }
 
-    // Use remaining daily hours for global task pool
-    for (let i = 1; i <= days; i++) {
+    // 2️⃣ After all plans have their guaranteed time, use remaining hours for all leftover tasks (continuous allocation)
+    let leftoverTasks = tasks.filter(
+      (t) => t.estimatedTime > 0 && new Date(t.deadline) >= today
+    );
+    leftoverTasks.sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      return new Date(a.deadline) - new Date(b.deadline);
+    });
+
+    let taskIndex = 0;
+    for (let day = 1; day <= days && taskIndex < leftoverTasks.length; day++) {
       const dateKey = new Date(today);
-      dateKey.setDate(today.getDate() + i);
+      dateKey.setDate(today.getDate() + day);
       const dateStr = dateKey.toISOString().split("T")[0];
+      let hoursLeft = schedule[dateStr].hoursLeft;
 
-      const dayHours = schedule[dateStr];
-      for (let t = 0; t < tasks.length && dayHours.hoursLeft > 0; t++) {
-        const task = tasks[t];
-        if (new Date(task.deadline) < today || task.estimatedTime <= 0)
+      while (hoursLeft > 0 && taskIndex < leftoverTasks.length) {
+        const task = leftoverTasks[taskIndex];
+        if (task.estimatedTime <= 0) {
+          taskIndex++;
           continue;
+        }
 
-        const hoursToSchedule = Math.min(
-          task.estimatedTime,
-          dayHours.hoursLeft
-        );
-        if (hoursToSchedule > 0) {
-          dayHours.tasks.push({
-            ...task._doc,
-            scheduledPart: hoursToSchedule,
-          });
-          dayHours.hoursLeft -= hoursToSchedule;
-          task.estimatedTime -= hoursToSchedule;
+        const hoursToSchedule = Math.min(task.estimatedTime, hoursLeft);
+        schedule[dateStr].tasks.push({
+          ...task._doc,
+          hoursToStudyToday: hoursToSchedule,
+        });
 
-          if (!task._scheduled) {
-            await Task.findByIdAndUpdate(task._id, {
-              scheduledDate: dateKey,
-            });
-            task._scheduled = true;
-          }
+        hoursLeft -= hoursToSchedule;
+        schedule[dateStr].hoursLeft -= hoursToSchedule;
+        task.estimatedTime -= hoursToSchedule;
+
+        if (!task._scheduled) {
+          await Task.findByIdAndUpdate(task._id, { scheduledDate: dateKey });
+          task._scheduled = true;
+        }
+
+        if (task.estimatedTime <= 0) {
+          taskIndex++;
         }
       }
     }
@@ -191,7 +202,7 @@ exports.scheduleTasks = async (req, res) => {
             planId: task.planId,
             planTitle: plan ? plan.title : "Unknown Plan",
             priority: task.priority,
-            scheduledPart: task.scheduledPart,
+            hoursToStudyToday: task.hoursToStudyToday,
           });
         }
       }
